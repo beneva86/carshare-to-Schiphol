@@ -1,0 +1,20 @@
+doctype html
+html(lang='en')
+	head
+		meta(charset='UTF-8')
+		meta(name='viewport', content='width=device-width, initial-scale=1.0')
+		link(rel='stylesheet', type='text/css', href='/css/style.css')
+		script(src='https://code.jquery.com/jquery-1.10.2.js')
+		script(src='https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=places&language=en')
+		script(src='http://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.js')
+		title CARSHARE TO SCHIPHOL APP
+		
+	body
+		.topnav
+				a(style='float:left') Airport Carshare
+				a(href='/logout') Log out
+				a(href='/profile') My Profile
+				a(href='/addroute') Add route
+				a(href='/search') Search route
+				a(href='/') Home				
+block content

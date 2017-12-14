@@ -1,0 +1,92 @@
+extends layout
+
+block content
+	h2#title Here are your route details:
+	.container(data-route=routedetails)
+		.RideDetails.trip-container
+			.u-table
+				.u-cell.u-alignTop
+					span.RideName-mainTrip <b>#{routedetails.depart_city} - Schiphol Airport, Amsterdam</b>
+				.u-cell.u-alignRight.u-alignTop
+					.RideDetails-publicationInfo.u-table
+						span.u-cell Offer posted: #{routedetails.createdAt}
+			.row
+				.span8 
+					.RideDetails.block.block--standalone
+						.RideDetails-info.u-clearfix
+							span.RideDetails-infoLabel Pick up points
+							span.RideDetails-infoValue
+								i.RideDetails-infoIcon.u-green(style='aria-hidden:true')
+								span #{routedetails.depart_city}
+								if routedetails.pickup_point1
+									br
+									span #{routedetails.pickup_point1}
+								if routedetails.pickup_point2
+									br
+									span #{routedetails.pickup_point2}
+								if routedetails.pickup_point3
+									br
+									span #{routedetails.pickup_point3}
+						br
+						.RideDetails-info.u-clearfix
+							span.RideDetails-infoLabel Drop off point
+							span.RideDetails-infoValue
+								i.RideDetails-infoIcon.u-red(style='aria-hidden:true')
+								span Schiphol Airport, Amsterdam
+						br
+						.RideDetails-info.u-clearfix
+							span.RideDetails-infoLabel Date
+							strong.RideDetails-infoValue
+								span #{routedetails.date} - #{routedetails.time}
+					table.table.table-bordered.table-basic.table-route.full-passengers
+						caption
+							h2.size20 Schedule and ride group
+						thead
+							tr
+								th.no-radius.trip-row(scope='col')
+									span.u-visuallyHidden Ride
+								th#driver.u-alignMiddle(scope='col')
+				.span4 
+
+
+
+
+
+
+
+
+
+
+
+
+	.container
+		.details1(style='border-right:0px')
+			p <b>Date:</b> #{routedetails.date.replace(/-/g, '.')}
+			p <b>Departure:</b> #{routedetails.time}
+			p#cities #{routedetails.depart_city} 
+			if routedetails.pickup_point1
+				p#line |
+				p#cities #{routedetails.pickup_point1} 
+			if routedetails.pickup_point2
+				p#line |
+				p#cities #{routedetails.pickup_point2}
+			if routedetails.pickup_point3
+				p#line |
+				p#cities #{routedetails.pickup_point3} 
+			p#line |
+			p#cities Schiphol Airport
+		.details1(style='border-right:0px; border-left:0px')
+				p <b> Available seats: </b> #{routedetails.available_seats}
+		if (user.status !== 'driver')
+			.details1(style='border-right:0px; border-left:0px')
+				p <b> Available seats </b> #{routedetails.available_seats}
+			.details1(style='border-right:0px; border-left:0px')
+				p <b>Driver:</b> #{routedetails.driver.username}
+				p <b>Points:</b> 4.8 / 5
+			.details1(style='border-left:0px')
+				p <b>Contact</b>
+				p <b>Driver's name:</b> #{routedetails.driver.firstname} #{routedetails.driver.lastname}
+				p <b>Phone number:</b> #{routedetails.driver.phone_number}
+
+
+	

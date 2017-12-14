@@ -1,0 +1,68 @@
+extends layout
+
+block content
+	h1#title(data-matchroutes=matchRoutes) We found #{matchRoutes.length} route(s) for you
+	//- h3= JSON.stringify(matchRoutes)
+	//- .testter(style='width:1000px;height:300px;background-color:red;')
+	//- 	.test-1(style='width:400px;height:300px;background-color:blue;display:inline-block;border: 1px solid black;')
+	//- 		.test3(style='width:100%;height:50px;background-color:green;border: 1px solid black;')
+	//- 		.test5(style='width:100%;height:247px;background-color:purple;border: 1px solid black;')
+	//- 			.test6(style='width:47%;height:247px;background-color:cyan;border: 1px solid black;display:inline-block;')
+	//- 			//- .test7(style='width:49%;height:247px;background-color:orange;border: 1px solid black;display:inline-block;')
+	//- 	.test-2(style='width:400px;height:300px;background-color:blue;display:inline-block; border: 1px solid black;')
+	//- 		.test4(style='width:100%;height:50px;background-color:yellow;border: 1px solid black;')
+		
+	ol#details-list(style='list-style: decimal inside')
+		each route in matchRoutes
+			table(style='width:80%; border:1px solid black')
+				tr
+					td(colspan="2")
+						h3 <b>#{route.depart_city} - Schiphol Airport, Amsterdam</b>
+					td(colspan="2")
+						h3 Date: #{route.date}			
+				tr
+					td(style='width:20%') Pickup points
+					td(style='width:40%') #{route.depart_city}
+						img.startpoint-icon(src='/images/start_icon.png')
+					td(style='width:20%') #{route.time}
+					td(style='width:20%') 40 €
+				if route.pickup_point1
+					tr
+						td 
+						td#pickups #{route.pickup_point1}
+							img.pickup-icon(src='/images/pickup_icon.png')
+						td #{route.time}
+						td 40 €
+				if route.pickup_point2
+					tr
+						td 
+						td#pickups #{route.pickup_point2}
+							img.pickup-icon(src='/images/pickup_icon.png')
+						td #{route.time}
+						td 40 €
+				if route.pickup_point3
+					tr
+						td
+						td#pickups #{route.pickup_point3}
+							img.pickup-icon(src='/images/pickup_icon.png')
+						td #{route.time}
+						td 40 €
+				tr
+					td Drop-off point
+					td Schiphol Airport, Amsterdam
+						img.startpoint-icon(src='/images/start_icon.png')
+					td #{route.time}
+					td
+				tr
+					td(colspan="2")
+						button Driver's details
+					td(colspan="2")
+						button Car's details			
+				tr
+				br
+
+
+	script(src="/js/showdetails.js")
+
+
+

@@ -1,0 +1,58 @@
+extends layout
+
+block content
+	h1#title(data-error_username=message_username, data-error_email= message_email) Airport Carshare
+	h4#description Do you often travel via your local airport? With the carshare app you can upload a route as a driver, and pick up passengers in places designated by you. <br> &nbsp; As a passenger you can look for a route and catch a ride with someone on their way to the airport. In both cases you can use your flight number and maybe even get to share a car with people that will be on your flight!
+
+	.container
+		.login
+			h3 Already registered? LOG IN here!
+				form(action='/login' method='post')
+					dl
+						dt
+							label#labels(for='username') Your username
+						dd
+							input#inputs(name='username' required, placeholder='Enter your username')
+							span#error-message Hello
+						dt
+							label#labels(for='password') Your password
+						dd
+							input#inputs(name='password' type='password' required, placeholder='Enter your password')
+					button(type='submit' name='passenger')
+						span Log in as a Passenger
+					button(type='submit' name='driver')
+						span Log in as a Driver
+		.signup
+			h3 Not registered yet? SIGN UP here!
+			form(action='/signup', method='POST', id='signup')
+				dl
+					dt
+						label#labels(for='firstname') Your first name
+					dd
+						input#inputs(name='firstname' required, placeholder='Enter your first name')
+					dt
+						label#labels(for='lastname') Your last name
+					dd
+						input#inputs(name='lastname' required, placeholder='Enter your last name')
+					dt
+						label#labels(for='username') Your username
+						p#error_username
+					dd
+						input#input_username(name='username' required, placeholder='Enter your username')
+					dt
+						label#labels(for='email') Your email
+						p#error_email
+					dd
+						input#input_email(name='email' required, placeholder='Enter your email address')
+					dt
+						label#labels(for='phonenumber') Your phone number
+					dd
+						input#inputs(name='phonenumber' required, placeholder='Enter your phone number')
+					dt
+						label#labels(for='password') Your password
+					dd
+						input#inputs(name='password' type='password' required, placeholder='Enter your password')
+				button#signup-submit(type="submit", name="submit") 
+					span Create your profile 
+
+
