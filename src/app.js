@@ -9,7 +9,7 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
 // API google maps
-const apikey = 'AIzaSyBTxIpwHH_EFxlGzbohNLEl39Bv4-IjN8k'
+const apikey_distancematrix = 'AIzaSyCfuyDCJBadGM4rtZtXr-O0uqhy2zRdFRQ'
 
 
 // CONFIG dependencies
@@ -91,13 +91,37 @@ const Route = sequelize.define('routes', {
   depart_city: {
     type: Sequelize.STRING
   },
+  price_from_depart: {
+    type: Sequelize.INTEGER
+  },
   pickup_point1: {
     type: Sequelize.STRING
+  },
+  pickup_point1_time: {
+    type: Sequelize.STRING
+  },
+  price_from_p1: {
+    type: Sequelize.INTEGER
   },
   pickup_point2: {
     type: Sequelize.STRING
   },
+  pickup_point2_time: {
+    type: Sequelize.STRING
+  },
+  price_from_p2: {
+    type: Sequelize.INTEGER
+  },
   pickup_point3: {
+    type: Sequelize.STRING
+  },
+  pickup_point3_time: {
+    type: Sequelize.STRING
+  },
+  price_from_p3: {
+    type: Sequelize.INTEGER
+  },
+  drop_off_time: {
     type: Sequelize.STRING
   },
   available_seats: {
@@ -126,12 +150,16 @@ Route.hasMany(User)
 
 //----------------ROUTES----------------
 
-//ROUTE: HOME------------------------
-
+//ROUTE: LOGIN / SIGNUP PAGE------------------------
 app.get('/', (req,res) => {
   const user = req.session.user
   const message = req.query.message
   res.render('index', {message: message})
+})
+
+//ROUTE: HOME------------------------
+app.get('/home', (req,res) => {
+  res.render('home')
 })
 
 //POST ROUTE FOR SIGNUP
@@ -254,8 +282,12 @@ app.get('/searchresults', (req, res) => {
   const flightnumber = req.query.flightnumber
   const departuredate = req.query.departuredate
   const departuretime = req.query.departuretime
-  const depart_city= req.query.depart_city
+  let depart_city= req.query.depart_city
   const requiredseats = req.query.requiredseats
+
+  if (depart_city.indexOf('Netherlands') === -1) {
+    depart_city = depart_city+',Netherlands'
+  }
 
   function addMinutesToTime(time, minsAdd) {
     function z(n){ 
@@ -279,9 +311,6 @@ app.get('/searchresults', (req, res) => {
       available_seats: {
           [Op.gte]: requiredseats  // greater than or equal to requiredseats
         },
-      // time: {
-      //   [Op.gte]: requiredseats
-      // }
       $or: [ 
       {depart_city: depart_city},
       {pickup_point1: depart_city}, 
@@ -320,7 +349,6 @@ app.get('/searchresults', (req, res) => {
   res.render('searchresults')
 })
 
-
 //ROUTE: SHOW THE ADDROUTE PAGE
 app.get('/addroute', (req, res) => {
   const user = req.session.user
@@ -342,6 +370,19 @@ app.post('/addroute', (req, res) => {
   const car_type = req.body.car_type
   const endpoint = 'Schiphol' 
 
+ if(depart_city.indexOf('Netherlands') === -1){
+  depart_city = depart_city+',Netherlands'
+} 
+ if(pickup_point1.length > 0 && pickup_point1.indexOf('Netherlands') === -1) {
+  pickup_point1 = pickup_point1+',Netherlands'
+ }
+ if(pickup_point2.length > 0 && pickup_point2.indexOf('Netherlands') === -1) {
+  pickup_point2 = pickup_point2+',Netherlands'
+ }
+ if(pickup_point3.length > 0 && pickup_point3.indexOf('Netherlands') === -1) {
+  pickup_point3 = pickup_point3+',Netherlands'
+}
+
   if(depart_city.indexOf(' ') > -1 || pickup_point1.indexOf(' ') > -1 || pickup_point2.indexOf(' ') > -1 || pickup_point3.indexOf(' ') > -1 ) {
     depart_city = depart_city.replace(/\s/g, "")
     pickup_point1 = pickup_point1.replace(/\s/g, "")
@@ -349,8 +390,8 @@ app.post('/addroute', (req, res) => {
     pickup_point3 = pickup_point3.replace(/\s/g, "")
   }
 
+// send request to the google distancematrix API to get the distance and travel time
   let https = require('https');
-
   let options = {
     host: 'maps.googleapis.com',
     path: '/maps/api/distancematrix/json' + '?' + 'origins=' + depart_city + '|' + pickup_point1 + '|' + pickup_point2 + '|' + pickup_point3 + '&destinations=' + pickup_point1 + '|' + pickup_point2 + '|' + pickup_point3 + '|' + endpoint +  '&key=AIzaSyCWsHuxxY7t8kKfDe5sh0WKwFZ0B_HxjIs',
@@ -368,45 +409,136 @@ app.post('/addroute', (req, res) => {
   resp.on('end', () => {
     let result = JSON.parse(data);
     console.log('this is the data: ' + data)
-    console.log(`Distance between ${depart_city} and ${pickup_point1} ` + result.rows[0].elements[0].distance.text)
-    console.log(`Distance between ${depart_city} and ${pickup_point1} ` + result.rows[0].elements[0].duration.text)
-    console.log(`Distance between ${pickup_point1} and ${pickup_point2} ` + result.rows[1].elements[1].distance.text)
-    console.log(`Distance between ${pickup_point1} and ${pickup_point2} ` + result.rows[1].elements[1].duration.text)
-    console.log(`Distance between ${pickup_point2} and ${pickup_point3} ` + result.rows[2].elements[2].distance.text)
-    console.log(`Distance between ${pickup_point2} and ${pickup_point3} ` + result.rows[2].elements[2].duration.text)
-    console.log(`Distance between ${pickup_point3} and ${endpoint} ` + result.rows[3].elements[3].distance.text)
-    console.log(`Distance between ${pickup_point3} and ${endpoint} ` + result.rows[3].elements[3].duration.text)
+    console.log('this is the length: ' + result.origin_addresses.length)
 
-   // for(var element in result.rows[0]){
-    //   console.log('Element name '+ element)
-    //   console.log('Value '+ result.rows[0][element])
-    // }
-  });
-}); 
+    let distance_array = []
+    let travelTime_array = []
+    let distanceAtoB 
+    let distanceBtoC 
+    let distanceCtoD 
+    let distanceDtoE 
+    let travelTimeAtoB 
+    let travelTimeBtoC 
+    let travelTimeCtoD 
+    let travelTimeDtoE
+
+    for (let i = 0; i < result.origin_addresses.length; i++) {
+      distance_array.push(result.rows[i].elements[i].distance.text)
+      travelTime_array.push(Math.floor(result.rows[i].elements[i].duration.value / 60))
+    } 
+
+    function addMinutesToTime(time, minsAdd) {
+      function z(n){ 
+        return (n < 10 ? '0' : '') + n
+      };
+          let bits = time.split(':');
+          let mins = bits[0]*60 + +bits[1] + +minsAdd;
+        return z(mins%(24*60)/60 | 0) + ':' + z(mins%60);  
+    } 
 
   User.findOne({
     where: {
       username: user.username
     }
   }).then(function(user) {
-    console.log('USER IS: ' + JSON.stringify(user))
+
+    let pickup_point1_time
+    let pickup_point2_time
+    let pickup_point3_time
+    let drop_off_time
+    let priceAtoB
+    let priceBtoC
+    let priceCtoD
+    let priceDtoE
+
+   if (pickup_point1, pickup_point2, pickup_point3) {
+     travelTimeAtoB = travelTime_array[0]
+     travelTimeBtoC = travelTime_array[1]
+     travelTimeCtoD = travelTime_array[2]
+     travelTimeDtoE = travelTime_array[3]
+     distanceAtoB = distance_array[0]
+     distanceBtoC = distance_array[1]
+     distanceCtoD = distance_array[2]
+     distanceDtoE = distance_array[3]
+     pickup_point1_time = addMinutesToTime(departure_time, travelTimeAtoB)
+     pickup_point2_time = addMinutesToTime(pickup_point1_time, travelTimeBtoC)
+     pickup_point3_time = addMinutesToTime(pickup_point2_time, travelTimeCtoD)
+     drop_off_time = addMinutesToTime(pickup_point3_time, travelTimeDtoE)
+     priceDtoE = Math.floor(distanceDtoE.substring(0, distanceDtoE.length-3) * 2/Number(available_seats))
+     priceCtoD = priceDtoE + Math.floor(distanceCtoD.substring(0, distanceCtoD.length-3) * 2/Number(available_seats))
+     priceBtoC = priceCtoD + Math.floor(distanceBtoC.substring(0, distanceBtoC.length-3) * 2/Number(available_seats))
+     priceAtoB = priceBtoC + Math.floor(distanceAtoB.substring(0, distanceAtoB.length-3) * 2/Number(available_seats))     
+  
+  } else if (pickup_point1, pickup_point2) { 
+     travelTimeAtoB = travelTime_array[0]
+     travelTimeBtoC = travelTime_array[1]
+     travelTimeCtoD = travelTime_array[2]
+     distanceAtoB = distance_array[0]
+     distanceBtoC = distance_array[1]
+     distanceCtoD = distance_array[2]
+     pickup_point1_time = addMinutesToTime(departure_time, travelTimeAtoB)
+     pickup_point2_time = addMinutesToTime(pickup_point1_time, travelTimeBtoC)
+     pickup_point3_time = ''
+     drop_off_time = addMinutesToTime(pickup_point2_time, travelTimeCtoD)
+     priceDtoE = ''
+     priceCtoD = Math.floor(distanceCtoD.substring(0, distanceCtoD.length-3) * 2/Number(available_seats))
+     priceBtoC = priceCtoD + Math.floor(distanceBtoC.substring(0, distanceBtoC.length-3) * 2/Number(available_seats))
+     priceAtoB = priceBtoC + Math.floor(distanceAtoB.substring(0, distanceAtoB.length-3) * 2/Number(available_seats))
+ 
+  } else if (pickup_point1) {
+     travelTimeAtoB = travelTime_array[0]
+     travelTimeBtoC = travelTime_array[1]
+     distanceAtoB = distance_array[0]
+     distanceBtoC = distance_array[1]
+     pickup_point1_time = addMinutesToTime(departure_time, travelTimeAtoB)
+     pickup_point2_time = ''
+     pickup_point3_time = ''
+     drop_off_time = addMinutesToTime(pickup_point1_time, travelTimeBtoC)
+     priceDtoE = ''
+     priceCtoD = ''
+     priceBtoC = Math.floor(distanceBtoC.substring(0, distanceBtoC.length-3) * 2/Number(available_seats))
+     priceAtoB = priceBtoC + Math.floor(distanceAtoB.substring(0, distanceAtoB.length-3) * 2/Number(available_seats))
+
+  } else {
+     travelTimeAtoB = travelTime_array[0]
+     distanceAtoB = distance_array[0]
+     pickup_point1_time = ''
+     pickup_point2_time = ''
+     pickup_point3_time = ''
+     drop_off_time = addMinutesToTime(departure_time, travelTimeAtoB)
+     priceAtoB = Math.floor(distanceAtoB.substring(0, distanceAtoB.length-3) * 2/Number(available_seats))
+     priceBtoC = ''
+     priceCtoD = ''
+     priceDtoE = ''
+  }
+
     return Route.create({
       driverId: user.id,
       date: departure_date,
       time: departure_time,
       flight_number: flight_number,
       depart_city: depart_city,
+      price_from_depart: priceAtoB,
       pickup_point1: pickup_point1,
+      pickup_point1_time: pickup_point1_time,
+      price_from_p1: priceBtoC,
+      drop_off_time: drop_off_time,
       pickup_point2: pickup_point2,
+      pickup_point2_time: pickup_point2_time,
+      price_from_p2: priceCtoD,
       pickup_point3: pickup_point3,
+      pickup_point3_time: pickup_point3_time,
+      price_from_p3: priceDtoE,
       available_seats: available_seats,
       car_reg: carregistration,
       car_type: car_type,
     })
   }).then(function(route) {
-    console.log('ROUTE IS: ' + JSON.stringify(route))
+    // console.log('ROUTE IS: ' + JSON.stringify(route))
     res.redirect(`/confirm/${route.id}`);
   })
+})
+}); 
 })
 
 //ROUTE TO SHOW CONFIRMATION PAGE
@@ -432,26 +564,46 @@ app.get('/profile', (req, res) => {
     res.redirect('/?message=' + encodeURIComponent("Please log in to view your profile"));
   } 
     Route.findAll({ 
-      $or: [
-      {passengerId: user.id},
-      {driverId: user.id}
-      ]
+      where: {
+      [Op.or]: [{
+        passengerId: user.id
+      }, {
+        driverId: user.id
+      }]
+    }  
     }).then((routes) => {
-      console.log('ROUTES PROFILE IS: ' + routes)
-       if(routes.length > 0) {
-       res.render('profile', {user: user, routesList: routes});
-      } else {
-        res.render('profile', {user: user, message_noroutes: 'You don\'t have any route(s)'})
+      // console.log('USER ID IS: ' + user.id)
+      // for(let i=0; i< routes.length; i++) {
+      // console.log('DRIVER ID IS ' + routes[i].driverId + routes[i])
+      // console.log('PASSENGER ID IS ' + routes[i].passengerId + routes[i])
+      // console.log('ROUTES PROFILE IS: ' + JSON.stringify(routes))
+      // }
+
+      if(routes.length = 0) {
+        console.log('------------elso mukodik--------------')
+        res.render('profile', {user: user, message_noroutes: 'You don\t have any routes'})
       }
+      else {
+        console.log('------------masodik mukodik--------------')
+        Route.findAll({
+          where: {
+            driverId: user.id
+          }
+        }).then((routes_driver) => {
+          console.log('------------harmadik mukodik--------------')
+              return routes_driver
+          Route.findAll({
+             where: {
+               passengerId: user.id
+            }
+          }).then((routes_passenger) => { 
+            console.log('------------negyedik mukodik--------------')
+            res.render('profile', {user: user, routes_passenger: routes_passenger, routes_driver: routes_driver});   
+        })
     })
+    }
 })
-
-
-
-
-
-
-
+})
 
 //ROUTE TO LOGOUT
 app.get('/logout', (req,res)=> {
@@ -463,7 +615,7 @@ app.get('/logout', (req,res)=> {
   })
 })
 
-sequelize.sync()
+sequelize.sync({force: true})
 
 app.listen(3000, function(){
   console.log("Carshare app is listening on port 3000")

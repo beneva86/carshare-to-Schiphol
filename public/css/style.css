@@ -443,3 +443,8 @@ tr {
 #pickups {
 	padding-left: 2%;
 }
+
+/* google autocomplete div */
+.pac-container.pac-logo {
+	min-width: 230px;
+}

@@ -1,0 +1,102 @@
+extends layout
+
+block content
+		h2#title(data-routes=routesList) Profile of #{user.firstname} #{user.lastname}
+		h3#user(data-user=user) Your username is #{user.username}
+		h3 Your email is #{user.email}
+		if routesList
+			div#driver
+				h3 Your added routes:		
+				each route in routesList
+					li.list-group-item(data-id=route.id, style='list-style: none')
+						p
+							span #{route.date}
+							span #{route.time} 
+							span #{route.depart_city} - Schiphol Airport 
+							span #{route.available_seats} seat(s)
+							span Driver: #{user.username}
+							button.details-button.see-details(data-routeid=route.id, data-route=route, style='float:right; width:60px;height:30px') Details
+						.hidden(id=route.id+1)
+							p Details:
+								.content
+									img.start-endpoint(src='/images/start_icon.png')
+									p #{route.time} 
+										span #{route.depart_city}
+										span#price 70 €
+								if route.pickup_point1
+									.content
+										img.pickuppoint(src='/images/pickup_icon.png')
+										p(id=route.id+'pickup1')
+											span #{route.pickup_point1}
+											span#price 50 €
+								if route.pickup_point2
+									.content
+										img.pickuppoint(src='/images/pickup_icon.png')
+										p(id=route.id+'pickup2')
+											span #{route.pickup_point2}
+											span#price 30 €
+								if route.pickup_point3
+									.content
+										img.pickuppoint(src='/images/pickup_icon.png')
+										p(id=route.id+'pickup3')
+											span #{route.pickup_point3}
+											span#price 15 €
+								.content
+									img.start-endpoint(src='/images/end_icon.png')
+									p(id=route.id+'endpoint')
+										span Schiphol Airport
+		if routes_passenger
+			div#passenger
+				h3 You booked these routes:
+				each route in routes_passenger
+					li.list-group-item(id=route.id, style='list-style: none')
+						p
+							span #{route.date}
+							span #{route.time} 
+							span #{route.depart_city} - Schiphol Airport 
+							span #{route.available_seats} seat(s)
+							span Driver: #{route.driver.username}
+							button.details-button.see-details(data-routeid=route.id, data-route=route, style='float:right; width:60px;height:30px') Details
+						.hidden(id=route.id+1)
+							p Details:
+								.content
+									img.start-endpoint(src='/images/start_icon.png')
+									p #{route.time} 
+										span #{route.depart_city}
+										span#price 70 €
+								if route.pickup_point1
+									.content
+										img.pickuppoint(src='/images/pickup_icon.png')
+										p(id=route.id+'pickup1')
+											span #{route.pickup_point1}
+											span#price 50 €
+								if route.pickup_point2
+									.content
+										img.pickuppoint(src='/images/pickup_icon.png')
+										p(id=route.id+'pickup2')
+											span #{route.pickup_point2}
+											span#price 30 €
+								if route.pickup_point3
+									.content
+										img.pickuppoint(src='/images/pickup_icon.png')
+										p(id=route.id+'pickup3')
+											span #{route.pickup_point3}
+											span#price 15 €
+								.content
+									img.start-endpoint(src='/images/end_icon.png')
+									p(id=route.id+'endpoint')
+										span Schiphol Airport
+		if message_noroutes
+			h3= message_noroutes
+			if (user.status === 'passenger')
+				a(href='/search')
+					button Click here to search a route
+			else 
+				a(href='/addRoute')
+					button Click here to add a route
+
+		script(src="/js/showdetails.js")
+
+
+
+
