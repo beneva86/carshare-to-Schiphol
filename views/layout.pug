@@ -12,9 +12,13 @@ html(lang='en')
 	body
 		.topnav
 				a(style='float:left') Airport Carshare
-				a(href='/logout') Log out
-				a(href='/profile') My Profile
-				a(href='/addroute') Add route
-				a(href='/search') Search route
-				a(href='/home') Home				
+				if user
+					a(href='/logout') Log out
+					a(href='/profile') My Profile
+					a(href='/addroute') Add route
+					a(href='/search') Search route
+					a(href='/home') Home
+				else
+					a(href='/') Sign up / Log in
+					a(href='/home') Home				
 block content

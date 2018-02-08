@@ -2,18 +2,18 @@ extends layout
 
 block content
 	h1#title(data-error_username=message_username, data-error_email= message_email) Airport Carshare
-	h4#description Do you often travel via your local airport? With the carshare app you can upload a route as a driver, and pick up passengers in places designated by you. <br> &nbsp; As a passenger you can look for a route and catch a ride with someone on their way to the airport. In both cases you can use your flight number and maybe even get to share a car with people that will be on your flight!
-
+	h3#description Do you often travel via your local airport? With the carshare app you can upload a route as a driver, and pick up passengers in places designated by you. <br> &nbsp; As a passenger you can look for a route and catch a ride with someone on their way to the airport. In both cases you can use your flight number and maybe even get to share a car with people that will be on your flight!
+	h2#title(style='color: red')= message
 	.container
 		.login
-			h3 Already registered? LOG IN here!
+			h3 LOG IN here!
 				form(action='/login' method='post')
 					dl
 						dt
 							label#labels(for='username') Your username
 						dd
 							input#inputs(name='username' required, placeholder='Enter your username')
-							span#error-message Hello
+							span#error-message
 						dt
 							label#labels(for='password') Your password
 						dd
@@ -23,7 +23,7 @@ block content
 					button(type='submit' name='driver')
 						span Log in as a Driver
 		.signup
-			h3 Not registered yet? SIGN UP here!
+			h3 SIGN UP here!
 			form(action='/signup', method='POST', id='signup')
 				dl
 					dt
@@ -55,4 +55,4 @@ block content
 				button#signup-submit(type="submit", name="submit") 
 					span Create your profile 
 
-
+	script(src="/js/signuperrors.js")

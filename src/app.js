@@ -92,7 +92,7 @@ const Route = sequelize.define('routes', {
     type: Sequelize.STRING
   },
   price_from_depart: {
-    type: Sequelize.INTEGER
+    type: Sequelize.STRING
   },
   pickup_point1: {
     type: Sequelize.STRING
@@ -101,7 +101,7 @@ const Route = sequelize.define('routes', {
     type: Sequelize.STRING
   },
   price_from_p1: {
-    type: Sequelize.INTEGER
+    type: Sequelize.STRING
   },
   pickup_point2: {
     type: Sequelize.STRING
@@ -110,7 +110,7 @@ const Route = sequelize.define('routes', {
     type: Sequelize.STRING
   },
   price_from_p2: {
-    type: Sequelize.INTEGER
+    type: Sequelize.STRING
   },
   pickup_point3: {
     type: Sequelize.STRING
@@ -119,7 +119,7 @@ const Route = sequelize.define('routes', {
     type: Sequelize.STRING
   },
   price_from_p3: {
-    type: Sequelize.INTEGER
+    type: Sequelize.STRING
   },
   drop_off_time: {
     type: Sequelize.STRING
@@ -133,11 +133,11 @@ const Route = sequelize.define('routes', {
   car_reg: {
     type: Sequelize.STRING
   },
-  driverId: {
-    type: Sequelize.INTEGER
+  driver_username: {
+    type: Sequelize.STRING
   },
-  passengerId: {
-    type: Sequelize.ARRAY(Sequelize.INTEGER)
+  passenger_username:  {
+    type: Sequelize.ARRAY(Sequelize.STRING)
   },
   car_type: {
     type: Sequelize.STRING
@@ -170,10 +170,6 @@ app.post('/signup', (req, res) => {
   const email = req.body.email
   const password = req.body.password
   const phone_number = req.body.phonenumber
-  // const status_passenger = req.body.passenger
-  // const status_driver = req.body.driver
-
-// console.log("username is: " + username)
 
   User.findOne({
     where: {
@@ -181,9 +177,7 @@ app.post('/signup', (req, res) => {
     }
   }).then((returnUser) =>{
     if(returnUser !== null) {
-      console.log("returnuser is: " + JSON.stringify(returnUser))
       res.render('index', {message_username: 'This username is already in use. Please, select another username!'})
-
       // res.render('index', {message_username: 'This username is already in use. Please, select another username!'})
     } else {
     User.findOne({
@@ -285,8 +279,12 @@ app.get('/searchresults', (req, res) => {
   let depart_city= req.query.depart_city
   const requiredseats = req.query.requiredseats
 
-  if (depart_city.indexOf('Netherlands') === -1) {
-    depart_city = depart_city+',Netherlands'
+
+  if (depart_city.indexOf(',') === -1) {
+    depart_city = depart_city = depart_city+',Netherlands'
+  }
+    if(depart_city.indexOf(' ') > -1){
+    depart_city = depart_city.replace(/\s/g, "")
   }
 
   function addMinutesToTime(time, minsAdd) {
@@ -321,22 +319,15 @@ app.get('/searchresults', (req, res) => {
   })
   .then(function(routes) {
     console.log('ROUTES ARE: ' + JSON.stringify(routes)) // it is an empty array, if there is no match
-    if (routes.length !== 0) {
-    
-    let matchRoutes = []
+    if (routes.length !== 0) {  
+      let matchRoutes = []
+
     for (let i=0; i < routes.length; i++) {
-      // from 10:25 --> 10.25 (it is a string) --> to number 10.25 --> compare with the input time
+      // from 10:25 --> 1025 (it is a string) --> to number 1025 --> compare with the min and max time
       if(min_time_number <= Number(routes[i].time.replace(':', '')) <= max_time_number ){
-      console.log(routes[i].time)
-      console.log(Number(routes[i].time.replace(':', '')))
-      console.log(max_time_number)
-      console.log(min_time_number)
-      console.log(departuretime_number)
         matchRoutes.push(routes[i])
       }
-      }
-    
-    console.log('matchRoutes is: '+ JSON.stringify(matchRoutes))
+    }
        res.render('searchresults', {matchRoutes: routes, requiredseats: requiredseats, user: user})        
     } else {
        res.redirect('/search?message_nomatch=' + encodeURIComponent('There is no available route'))
@@ -348,6 +339,45 @@ app.get('/searchresults', (req, res) => {
 app.get('/searchresults', (req, res) => {
   res.render('searchresults')
 })
+
+//POST REQUEST FOR BOOK BTN ON SEARCH
+app.post('/reservation', (req, res) => {
+  const user = req.session.user
+  const route = req.body.route
+  const seats = req.body.requiredseats
+
+   User.update({
+      routeId: route.id,
+      reserved_seats: seats,
+    },{
+    where: {
+      id: user.id
+    }})
+  .then((user_loggedIn) => {
+      console.log(user.username, route.id);
+      return Route.update({
+      passenger_username: [user.username],
+      available_seats: route.available_seats - seats
+    }, {
+      where: {
+        id: route.id
+      },
+      returning: true
+    })
+  }).then((route_update) => {
+   return User.findOne ({
+        where: {
+          username: route.driver_username,
+        }
+      })
+  }).then((driver) => {
+      res.redirect(`/confirm/?routeId=${route.id}&driverId=${driver.id}`)
+  })
+  .catch(err =>{
+    console.error(err);
+  })
+})
+
 
 //ROUTE: SHOW THE ADDROUTE PAGE
 app.get('/addroute', (req, res) => {
@@ -370,16 +400,16 @@ app.post('/addroute', (req, res) => {
   const car_type = req.body.car_type
   const endpoint = 'Schiphol' 
 
- if(depart_city.indexOf('Netherlands') === -1){
+ if(depart_city.indexOf(',') === -1){
   depart_city = depart_city+',Netherlands'
 } 
- if(pickup_point1.length > 0 && pickup_point1.indexOf('Netherlands') === -1) {
+ if(pickup_point1.length > 0 && pickup_point1.indexOf(',') === -1) {
   pickup_point1 = pickup_point1+',Netherlands'
  }
- if(pickup_point2.length > 0 && pickup_point2.indexOf('Netherlands') === -1) {
+ if(pickup_point2.length > 0 && pickup_point2.indexOf(',') === -1) {
   pickup_point2 = pickup_point2+',Netherlands'
  }
- if(pickup_point3.length > 0 && pickup_point3.indexOf('Netherlands') === -1) {
+ if(pickup_point3.length > 0 && pickup_point3.indexOf(',') === -1) {
   pickup_point3 = pickup_point3+',Netherlands'
 }
 
@@ -394,7 +424,7 @@ app.post('/addroute', (req, res) => {
   let https = require('https');
   let options = {
     host: 'maps.googleapis.com',
-    path: '/maps/api/distancematrix/json' + '?' + 'origins=' + depart_city + '|' + pickup_point1 + '|' + pickup_point2 + '|' + pickup_point3 + '&destinations=' + pickup_point1 + '|' + pickup_point2 + '|' + pickup_point3 + '|' + endpoint +  '&key=AIzaSyCWsHuxxY7t8kKfDe5sh0WKwFZ0B_HxjIs',
+    path: '/maps/api/distancematrix/json' + '?' + 'origins=' + depart_city + '|' + pickup_point1 + '|' + pickup_point2 + '|' + pickup_point3 + '&destinations=' + pickup_point1 + '|' + pickup_point2 + '|' + pickup_point3 + '|' + endpoint +  '&key=' + apikey_distancematrix,
     method: 'GET',
     useQuerystring: true,
   };
@@ -513,7 +543,7 @@ app.post('/addroute', (req, res) => {
   }
 
     return Route.create({
-      driverId: user.id,
+      driver_username: user.username,
       date: departure_date,
       time: departure_time,
       flight_number: flight_number,
@@ -534,76 +564,85 @@ app.post('/addroute', (req, res) => {
       car_type: car_type,
     })
   }).then(function(route) {
-    // console.log('ROUTE IS: ' + JSON.stringify(route))
-    res.redirect(`/confirm/${route.id}`);
+    res.redirect(`/confirm/?routeId=${route.id}`);
   })
 })
 }); 
 })
 
 //ROUTE TO SHOW CONFIRMATION PAGE
-app.get('/confirm/:routeId', (req, res) => {
+app.get('/confirm', (req, res) => {
   const user = req.session.user
-  const routeId = req.params.routeId
+  const routeId = req.query.routeId
+  const driverId = req.query.driverId
 
-  Route.findOne({
-    where: {
-      id: routeId
-    }
-  }).then(function(route) {
-
-    res.render('confirm', {routedetails: route, user: user})
-  })
+  if(user.status === 'driver') {
+    Route.findOne({
+      where: {
+        id: routeId
+      }
+    }).then(function(route) {
+     console.log('--------- ROUTE CONFIRM DRIVER IS: ' + JSON.stringify(route))
+      res.render('confirm', {routedetails: route, user: user})
+    })
+  } else {
+      return Route.findOne({
+        where: {
+          id: routeId
+        },
+        include: [{
+              model: User,
+              }]
+    }).then(function(route) {
+     console.log('--------- ROUTE CONFIRM PASSENGER IS: ' + JSON.stringify(route))
+      return User.findOne({
+        where: {
+          username: route.driver_username
+        }
+      })
+      .then(driver =>{
+        console.log(`Driver returned is ${JSON.stringify(driver)}`)
+         res.render('confirm', {routedetails: route, user: user, driver: driver})
+      })
+     
+    })
+  }
 })
 
 //ROUTE TO SHOW PROFILE
 app.get('/profile', (req, res) => {
   const user = req.session.user;
+  console.log('USERNAME IS::::::: ' + user.username)
 
   if (user === undefined) {
-    res.redirect('/?message=' + encodeURIComponent("Please log in to view your profile"));
-  } 
+    res.render('profile', {message: "Please log in to view your profile"})
+  } else {
     Route.findAll({ 
       where: {
-      [Op.or]: [{
-        passengerId: user.id
-      }, {
-        driverId: user.id
-      }]
-    }  
-    }).then((routes) => {
-      // console.log('USER ID IS: ' + user.id)
-      // for(let i=0; i< routes.length; i++) {
-      // console.log('DRIVER ID IS ' + routes[i].driverId + routes[i])
-      // console.log('PASSENGER ID IS ' + routes[i].passengerId + routes[i])
-      // console.log('ROUTES PROFILE IS: ' + JSON.stringify(routes))
-      // }
-
-      if(routes.length = 0) {
-        console.log('------------elso mukodik--------------')
-        res.render('profile', {user: user, message_noroutes: 'You don\t have any routes'})
-      }
-      else {
-        console.log('------------masodik mukodik--------------')
+        driver_username: user.username,
+      } 
+    }).then((routes_driver) => {
+      console.log('-------ROUTES PROFILE IS: ' + JSON.stringify(routes_driver))
+      if(routes_driver.length === 0) {
         Route.findAll({
-          where: {
-            driverId: user.id
-          }
-        }).then((routes_driver) => {
-          console.log('------------harmadik mukodik--------------')
-              return routes_driver
-          Route.findAll({
              where: {
-               passengerId: user.id
+               passenger_username: {
+                $contains: [user.username]}
             }
-          }).then((routes_passenger) => { 
-            console.log('------------negyedik mukodik--------------')
-            res.render('profile', {user: user, routes_passenger: routes_passenger, routes_driver: routes_driver});   
+          }).then((routes_passenger) => {
+            if(routes_passenger.length === 0) {
+              res.render('profile', {user: user, message_noroutes: 'You don\t have any routes'})
+            } else {
+              res.render('profile', {user: user, routes_passenger: routes_passenger})
+            }
         })
+      } else {
+            res.render('profile', {user: user, routes_driver: routes_driver});   
+        }
     })
-    }
+}
 })
-})
+
 
 //ROUTE TO LOGOUT
 app.get('/logout', (req,res)=> {
@@ -615,7 +654,7 @@ app.get('/logout', (req,res)=> {
   })
 })
 
-sequelize.sync({force: true})
+sequelize.sync()
 
 app.listen(3000, function(){
   console.log("Carshare app is listening on port 3000")

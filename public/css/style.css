@@ -11,6 +11,8 @@ body{
 
 #description {
 	text-align: center;
+	line-height: 30px;
+	padding: 20px;
 }
 
 .container {
@@ -22,6 +24,10 @@ body{
   display: table-cell;
   padding: 16px;
   border: 1px solid #ddd;
+}
+
+.signup {
+	width: 45%;
 }
 
 #labels {
@@ -327,6 +333,7 @@ caption {
 	display: table-caption;
 }
 
+
 .size20 {
 	font-size: 20px !important;
 }
@@ -448,3 +455,27 @@ tr {
 .pac-container.pac-logo {
 	min-width: 230px;
 }
+
+#driver_details {
+	width: 32%;
+} 
+
+#car_details {
+	width: 48%;
+}
+
+#car_details, #driver_details {
+	font-size: 16px;
+	line-height: 11px;
+	text-align: center;
+}
+
+table tr.separator { 
+	height: 30px; 
+}
+
+#book-btn {
+	width: 50%;
+	/*margin-left: 25%;*/
+}
+

@@ -2,57 +2,59 @@ extends layout
 
 block content
 	br
-	if (user.status !== 'driver')
-		h3 You have to log in as a driver to add a route
-	else if (user.status === 'driver')
-		h3#title Add your route to Schiphol
-		form#addroute(action='/addroute' method='post')
-			div
-				label#searchlabel(for='flightnumber') <b>Flight number:</b>
-				input(type='text', name='flightnumber', placeholder='Flight number' required)
-			br
-			div
-				label#searchlabel(for='departuredate') <b>Date of departure:</b>
-				input(type='date', name='departuredate', placeholder='Date of departure' required)
-			br
-			div
-				label#searchlabel(for='departuretime') <b>Time of departure:</b>
-				input(type='time', name='departuretime', placeholder='Time of departure' required)
-			br
-			div
-				label#searchlabel(for='departcity') <b>Leaving from:</b>
-				input.address(type='text', name='departcity', placeholder='Your departure')
-			br
-			div
-				label#searchlabel(for='pickuppoint1') <b>Pick up points:</b>
-				input.address(type='text', name='pickuppoint1', placeholder='Possible city for pick up')
-			br
-			div
-				input.address(type='text', id='pickup', name='pickuppoint2', placeholder='Possible city for pick up')
-			br
-			div
-				input.address(type='text', id='pickup', name='pickuppoint3', placeholder='Possible city for pick up')
-			br
-			div
-				label#searchlabel <b>Going to:</b>
-				span(style='margin-left: 10px') Schiphol Airport
-			br
-			div
-				label#searchlabel(for='availableseats') <b>Number available seats:</b>
-				input(type='number', name='availableseats', placeholder='Available seats' required)
-			br
-			div
-				label#searchlabel(for='carregistration') <b>Car registration number</b>
-				input(type='text', name='carregistration', placeholder='Car registration' required)
-			br
-			div
-				label#searchlabel(for='car_type') <b>Your car (type and year):</b>
-				input(type='text', name='car_type', placeholder='Type of your car' required)
-			br
-			br
-			div
-				button(type='submit', id='submit') Add route
-
+	if user
+		if (user.status !== 'driver')
+			h3 You have to log in as a driver to add a route
+		else if (user.status === 'driver')
+			h2#title Add your route to Schiphol
+			form#addroute(action='/addroute' method='post')
+				div
+					label#searchlabel(for='flightnumber') <b>Flight number:</b>
+					input(type='text', name='flightnumber', placeholder='Flight number' required)
+				br
+				div
+					label#searchlabel(for='departuredate') <b>Date of departure:</b>
+					input(type='date', name='departuredate', placeholder='Date of departure' required)
+				br
+				div
+					label#searchlabel(for='departuretime') <b>Time of departure:</b>
+					input(type='time', name='departuretime', placeholder='Time of departure' required)
+				br
+				div
+					label#searchlabel(for='departcity') <b>Leaving from:</b>
+					input.address(type='text', name='departcity', placeholder='Your departure')
+				br
+				div
+					label#searchlabel(for='pickuppoint1') <b>Pick up points:</b>
+					input.address(type='text', name='pickuppoint1', placeholder='Possible city for pick up')
+				br
+				div
+					input.address(type='text', id='pickup', name='pickuppoint2', placeholder='Possible city for pick up')
+				br
+				div
+					input.address(type='text', id='pickup', name='pickuppoint3', placeholder='Possible city for pick up')
+				br
+				div
+					label#searchlabel <b>Going to:</b>
+					span(style='margin-left: 10px') Schiphol Airport
+				br
+				div
+					label#searchlabel(for='availableseats') <b>Number available seats:</b>
+					input(type='number', name='availableseats', placeholder='Available seats' required)
+				br
+				div
+					label#searchlabel(for='carregistration') <b>Car registration number</b>
+					input(type='text', name='carregistration', placeholder='Car registration' required)
+				br
+				div
+					label#searchlabel(for='car_type') <b>Your car (type and year):</b>
+					input(type='text', name='car_type', placeholder='Type of your car' required)
+				br
+				br
+				div
+					button(type='submit', id='submit') Add route
+	else
+		h3#title You have to log in as a driver to add a route
 	script(src="/js/show_cities.js")
 
 
