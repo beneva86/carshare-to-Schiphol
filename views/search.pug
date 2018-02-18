@@ -1,0 +1,45 @@
+extends layout
+
+block content
+	br
+	if user
+		if (user.status !== 'passenger')
+			h3(style='padding-left:5%') You have to log in as a passenger to search a route
+		else if (user.status === 'passenger')
+			h2#title Search for matching route
+			br
+			form#searchform(action='/searchresults' method='get' data-matchroutes=matchRoutes)
+				div
+					label#searchlabel(for='departuredate') <b>Date of departure:</b>
+					input(type='date', name='departuredate', placeholder='Date of departure' required)
+				br
+				div
+					label#searchlabel(for='departuretime') <b>Time of departure:</b>
+					input(type='time', name='departuretime', placeholder='Time of departure' required)
+				br
+				div
+					label#searchlabel(for='pickuppoints') <b>Leaving from:</b>
+					input.address(type='text', name='depart_city', placeholder='Your departure')
+				br
+				div
+					label#searchlabel(for='pickuppoints') <b>Going to:</b>
+					span(style='margin-left: 10px') Schiphol Airport
+				br
+				div
+					label#searchlabel(for='requiredseats') <b>Number of required seats:</b>
+					input(type='number', name='requiredseats', placeholder='Required seats' required)
+				br
+				br
+				div
+					button#submit(type='submit') See the routes
+			br
+			br
+			if message_nomatch
+				h3#error-message=message_nomatch
+	else 
+		h3(style='padding-left:5%') You have to log in as a passenger to search a route
+	script(src="/js/show_cities.js")
+	//- script.
+	//- 	$('#submit').click(function() {
+	//- 		document.getElementById("#searchform").submit();
+	//- 	})

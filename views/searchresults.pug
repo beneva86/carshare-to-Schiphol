@@ -1,0 +1,69 @@
+extends layout
+
+block content
+	h1#title(data-seats=requiredseats) We found #{matchRoutes.length} route(s) for you
+
+	ol#details-list(style='list-style: decimal inside')
+		each route in matchRoutes
+			table(style='width:80%; border:1px solid black' align="center")
+				tr
+					td(colspan="2")
+						h3 <b>#{route.depart_city} - Schiphol Airport, Amsterdam</b>
+					td(colspan="2")
+						h3#date Date: #{route.date}			
+				tr
+					td(style='width:20%') Pickup points
+					td(style='width:40%') #{route.depart_city}
+						img.startpoint-icon(src='/images/start_icon.png')
+					td(style='width:20%') #{route.time}
+					td(style='width:20%') #{route.price_from_depart} €
+				if route.pickup_point1
+					tr
+						td 
+						td#pickups #{route.pickup_point1}
+							img.pickup-icon(src='/images/pickup_icon.png')
+						td #{route.pickup_point1_time}
+						td #{route.price_from_p1} €
+				if route.pickup_point2
+					tr
+						td 
+						td#pickups #{route.pickup_point2}
+							img.pickup-icon(src='/images/pickup_icon.png')
+						td #{route.pickup_point2_time}
+						td #{route.price_from_p2} €
+				if route.pickup_point3
+					tr
+						td
+						td#pickups #{route.pickup_point3}
+							img.pickup-icon(src='/images/pickup_icon.png')
+						td #{route.pickup_point3_time}
+						td #{route.price_from_p3} €
+				tr
+					td Drop-off point
+					td Schiphol Airport, Amsterdam
+						img.startpoint-icon(src='/images/end_icon.png')
+					td #{route.drop_off_time}
+				tr.separator
+				tr
+					td(align:'center' colspan="2")#driver_details <b>Car's details</b>
+					td(colspan="2")#car_details <b>Driver's details</b>	
+				tr.separator
+				tr
+					td(colspan="2") <b>Type:</b> #{route.car_type}
+					td(colspan="1") <b>Username:</b> 
+					td(colspan="1") #{route.driver_username}
+				tr
+					td(colspan="2") <b>Available seats:</b> #{route.available_seats}
+					td(colspan="1") <b> Points:</b> 	
+					td(colspan="1") 4,7 / 5	
+				tr.separator
+				tr
+					td(colspan="4" align="center") 
+						button#book-btn(data-route=route) BOOK
+				br
+				br
+
+	script(src="/js/book_route.js")
+
+
+

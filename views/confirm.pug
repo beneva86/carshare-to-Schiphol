@@ -1,0 +1,82 @@
+extends layout
+
+block content
+	h2#title Here are your route's details:
+	table(align='center', style='width:80%; border:1px solid black')
+		tr
+			td(colspan="2")
+				h3 <b>#{routedetails.depart_city} - Schiphol Airport, Amsterdam</b>
+			td(colspan="2")
+				h3#date Date: #{routedetails.date}			
+		tr
+			td(style='width:20%') Pickup points
+			td(style='width:40%; color: #255fe4') #{routedetails.depart_city}
+				img.startpoint-icon(src='/images/start_icon.png')
+			td(style='width:20%') #{routedetails.time}
+			td(style='width:20%') #{routedetails.price_from_depart} € / passenger
+		if routedetails.pickup_point1
+			tr
+				td 
+				td#pickups(style='color: #255fe4') #{routedetails.pickup_point1}
+					img.pickup-icon(src='/images/pickup_icon.png')
+				td #{routedetails.pickup_point1_time}
+				td #{routedetails.price_from_p1} € / passenger
+		if routedetails.pickup_point2
+			tr
+				td 
+				td#pickups(style='color: #255fe4') #{routedetails.pickup_point2}
+					img.pickup-icon(src='/images/pickup_icon.png')
+				td #{routedetails.pickup_point2_time}
+				td #{routedetails.price_from_p2} € / passenger
+		if routedetails.pickup_point3
+			tr
+				td
+				td#pickups(style='color: #255fe4') #{routedetails.pickup_point3}
+					img.pickup-icon(src='/images/pickup_icon.png')
+				td #{routedetails.pickup_point3_time}
+				td #{routedetails.price_from_p3} € / passenger
+		tr
+			td Drop-off point
+			td(style='color: #255fe4') Schiphol Airport, Amsterdam
+				img.startpoint-icon(src='/images/end_icon.png')
+			td #{routedetails.drop_off_time}
+			td
+		tr.separator
+		if (user.status === 'driver')
+			tr
+				td(colspan="2", style="font-size: 18px;") <b>Your car's details:</b>
+				td(colspan="2", style="font-size: 18px;") <b>Contact:</b>
+			tr.separator
+			tr
+				td(colspan="1") <b>Type:</b>
+				td(colspan="1") #{routedetails.car_type}
+				td(colspan="1") <b>Phone number:</b>
+				td(colspan="1") #{user.phone_number}
+			tr
+				td(colspan="1") <b>Available seats:</b>
+				td(colspan="1") #{routedetails.available_seats}
+				td(colspan="1") <b>Email:</b>
+				td(colspan="1") #{user.email}
+		else
+			tr
+				td(colspan="2", style="font-size: 18px;") <b>The car's details:</b>
+				td(colspan="2", style="font-size: 18px;") <b>Driver's details:</b>
+			tr.separator
+			tr
+				td(colspan="1") <b>Type:</b>
+				td(colspan="1") #{routedetails.car_type}
+				td(colspan="1") <b>Username:</b>
+				td(colspan="1") #{driver.username}
+			tr
+				td(colspan="1") <b>Available seats:</b>
+				td(colspan="1") #{routedetails.available_seats}
+				td(colspan="1") <b>Email:</b>
+				td(colspan="1") #{driver.email}
+			tr
+				td(colspan="2")
+				td(colspan="1") <b> Phone number:</b>
+				td(colspan="1") #{driver.phone_number}
+			tr
+				td(colspan="2")
+				td(colspan="1") <b> Points:</b> 
+				td(colspan="1") 4,7 / 5	
